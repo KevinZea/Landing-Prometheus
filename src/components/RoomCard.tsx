@@ -1,16 +1,16 @@
-import {Button, Card, Heading, HStack, List, ListItem, Text, VStack, useDisclosure, Flex} from '@chakra-ui/react'
-import {FaBed, FaRegCheckCircle, FaUsers} from 'react-icons/fa'
-import ReservationModal from './ReservationModal'
-import {Room, SearchParams} from "../types.tsx";
+import {Button, Card, Flex, Heading, HStack, List, ListItem, Text, VStack} from '@chakra-ui/react'
+import {FaBed, FaCheckSquare, FaRegCheckCircle, FaRegSquare, FaUsers} from 'react-icons/fa'
+import {Room} from "../types.tsx";
 import {Splide, SplideSlide} from "@splidejs/react-splide";
+import {useState} from "react";
 
 interface RoomCardProps {
     room: Room
-    searchParams: SearchParams
+    handleToggleSelectFromRoom: (roomId: string, isSelected: boolean) => void;
 }
 
-export default function RoomCard({room, searchParams}: RoomCardProps) {
-    const {isOpen, onOpen, onClose} = useDisclosure()
+export default function RoomCard({room, handleToggleSelectFromRoom}: RoomCardProps) {
+    const [isSelected, setIsSelected] = useState(false);
 
     const benefits = [
         'Cancelación gratuita',
@@ -23,6 +23,11 @@ export default function RoomCard({room, searchParams}: RoomCardProps) {
         style: 'currency',
         currency: 'COP'
     }).format(room.price)
+
+    const handleSelection = () => {
+        setIsSelected(!isSelected);
+        handleToggleSelectFromRoom(room.id, isSelected);
+    }
 
     return (
         <Card p={4} boxShadow="md" height="100%">
@@ -93,18 +98,11 @@ export default function RoomCard({room, searchParams}: RoomCardProps) {
                             Incluídos tasas e impuestos
                         </Text>
                     </VStack>
-                    <Button colorScheme="blue" onClick={onOpen}>
-                        Reservar ahora
+                    <Button color={"brand.800"} variant="ghost" onClick={handleSelection} display={"flex"} gap={2}>
+                        {isSelected ? "Remover reserva" : "Añadir reserva" } {isSelected ? <FaCheckSquare size={24} color={"green"} /> : <FaRegSquare size={24} /> }
                     </Button>
                 </HStack>
             </VStack>
-
-            <ReservationModal
-                isOpen={isOpen}
-                onClose={onClose}
-                room={room}
-                searchParams={searchParams}
-            />
         </Card>
     )
 }

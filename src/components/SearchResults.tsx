@@ -1,49 +1,62 @@
-import { Box, SimpleGrid, Text, useToast } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import {Box, Button, SimpleGrid, Text, useDisclosure, useToast} from '@chakra-ui/react'
+import React, {useEffect, useState} from 'react'
 import RoomCard from '../components/RoomCard'
-import { searchRooms } from '../services/api'
 import {Room} from "../types.tsx";
+import ReservationModal from "./ReservationModal.tsx";
 
 interface SearchResultsProps {
     hotelId: string;
+    searchParams: URLSearchParams;
+    loading: boolean;
+    rooms: Room[];
+    reservationCreated: () => void;
 }
 
-export default function SearchResults({hotelId}: SearchResultsProps) {
-    const [searchParams] = useSearchParams()
-    const [rooms, setRooms] = useState<Room[]>([])
-    const [loading, setLoading] = useState(true)
+export default function SearchResults({hotelId, searchParams, loading, rooms, reservationCreated}: SearchResultsProps) {
     const toast = useToast()
+    const [selectedRooms, setSelectedRooms] = useState<string[]>([])
+    const [roomList, setRoomList] = useState<Room[]>([])
+    const [isSelected, setSelected] = useState<boolean>(false);
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
-    useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                const entryDateTime = new Date(searchParams.get('entryDate') as string);
-                const exitDateTime = new Date(searchParams.get('exitDate') as string);
-                const params = {
-                    hotelId: "cm7agdu2t0006ne0w5rh1jc0s",
-                    entryDate: entryDateTime.toISOString(),
-                    exitDate: exitDateTime.toISOString(),
-                    adults: searchParams.get('adults'),
-                    children: searchParams.get('children')
-                }
-                const data = await searchRooms(params)
-                setRooms(data)
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: "Failed to fetch available rooms",
-                    status: "error",
-                    duration: 5000,
-                });
-                console.log(error);
-            } finally {
-                setLoading(false)
+    const handleToggleSelectFromRoom = (roomId: string, isSelected: boolean) => {
+        const list: string[] = selectedRooms;
+        if (!isSelected) {
+            list.push(roomId);
+        } else {
+            list.splice(list.indexOf(roomId), 1);
+        }
+        setSelected(list.length > 0);
+        setSelectedRooms(list);
+    };
+
+    useEffect(() => {}, [loading, rooms, selectedRooms, toast]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log('submit');
+        const list: Room[] = [];
+        for(const room of rooms) {
+            if(selectedRooms.includes(room.id)) {
+                list.push(room);
             }
         }
+        setRoomList(list);
+    }
 
-        fetchRooms()
-    }, [searchParams, toast])
+    useEffect(() => {
+        if(roomList.length > 0) {
+            onOpen();
+            console.log('trying')
+        }
+    }, [roomList]);
+
+    const handleReservationCreated = () => {
+        setSelectedRooms([]);
+        setRoomList([]);
+        setSelected(false);
+        reservationCreated();
+    }
 
     if (loading) {
         return <Box p={8} mt={20}>Loading...</Box>
@@ -60,27 +73,50 @@ export default function SearchResults({hotelId}: SearchResultsProps) {
     }
 
     return (
-        <Box p={{ base: 4, md: 8 }} mt={20}>
+        <Box w={"100%"} maxW={"100%"}>
             <SimpleGrid
-                columns={{ base: 1, md: 2, lg: 2, xl: 3 }}
+                columns={{ base: 1, lg: 2, xl: 3 }}
                 spacing={{ base: 4, md: 6 }}
-                maxW="1200px"
                 mx="auto"
+                mb={4}
             >
                 {rooms.map(room => (
                     <RoomCard
                         key={room.id}
                         room={room}
-                        searchParams={{
-                            hotelId: hotelId,
-                            entryDate: searchParams.get("entryDate"),
-                            exitDate: searchParams.get("exitDate"),
-                            adults: searchParams.get("adults"),
-                            children: searchParams.get("children")
-                        }}
+                        handleToggleSelectFromRoom={handleToggleSelectFromRoom}
                     />
                 ))}
             </SimpleGrid>
+            {isSelected && (
+                <Box
+                    position="sticky"
+                    bottom={4}
+                    zIndex={10}
+                    display="flex"
+                    justifyContent="center"
+                    width="100%"
+                    px={4}
+                >
+                    <Button onClick={handleSubmit} variant={'solid'} colorScheme={'green'} size={'lg'} boxShadow={'md'} mx={'auto'}>
+                        Completar reserva
+                    </Button>
+                </Box>
+            )}
+
+            <ReservationModal
+                isOpen={isOpen}
+                onClose={onClose}
+                rooms ={roomList}
+                searchParams={{
+                    hotelId: hotelId,
+                    entryDate: searchParams.get('entryDate'),
+                    exitDate: searchParams.get('exitDate'),
+                    adults: searchParams.get('adults'),
+                    children: searchParams.get('children')
+                }}
+                reservationCreated={handleReservationCreated}
+            />
         </Box>
     )
 }

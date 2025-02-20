@@ -38,3 +38,13 @@ export interface Country {
     code: string;
 }
 
+export interface Service {
+    title: string;
+    description: string;
+    image: Image;
+}
+
+export interface Image {
+    imageUrl: string;
+    imageAlt: string;
+}

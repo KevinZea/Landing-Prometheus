@@ -14,13 +14,13 @@ export function Header() {
     });
 
     const logoHeight = useBreakpointValue({
-        base: '30px',
-        md: '40px',
-        lg: '50px'
+        base: '40px',
+        md: '60px',
+        lg: '80px'
     });
 
     return (
-        <Box as="header" position={"fixed"} zIndex={"10"} w={"100%"} bg="none" py={{base:2, md:4}} >
+        <Box as="header" position={"absolute"} zIndex={"10"} w={"100%"} bg="none" py={{base:2, md:4}} >
             <Flex
                 maxW="1200px"
                 mx="auto"
@@ -37,8 +37,9 @@ export function Header() {
                     spacing={{ base: 2, md: 4, lg: 6 }}
                     display={navDisplay}
                 >
-                    <Link href="/about" fontSize={{ base: 'sm', md: 'md', lg: 'lg' }} color={"brand.50"}>Sobre nosotros</Link>
-                    <Link href="/contact" fontSize={{ base: 'sm', md: 'md', lg: 'lg' }} color={"brand.50"}>Contacto</Link>
+                    <Link href="#services" fontSize={{ base: 'sm', md: 'md', lg: 'lg' }} color={"brand.50"}>Servicios</Link>
+                    <Link href="#aboutUs" fontSize={{ base: 'sm', md: 'md', lg: 'lg' }} color={"brand.50"}>Sobre nosotros</Link>
+                    <Link href="#contact" fontSize={{ base: 'sm', md: 'md', lg: 'lg' }} color={"brand.50"}>Contacto</Link>
                 </Stack>
 
                 <Stack

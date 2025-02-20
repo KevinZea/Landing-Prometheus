@@ -1,40 +1,37 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     AlertDialog,
-    AlertDialogOverlay,
-    AlertDialogContent,
-    AlertDialogHeader,
     AlertDialogBody,
+    AlertDialogContent,
     AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
     Button,
     FormControl,
     FormLabel,
+    HStack,
     Input,
     Select,
     useToast,
-    HStack,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { createReservation } from "../services/api";
-import { fetchCountries } from "../services/countryService";
-import { Country } from "../types";
-import { ReservationData, SearchParams } from "../types";
+import {createReservation} from "../services/api";
+import {fetchCountries} from "../services/countryService";
+import {Country, ReservationData, Room, SearchParams} from "../types";
 
 interface ReservationModalProps {
     isOpen: boolean;
     onClose: () => void;
-    room: {
-        id: string;
-        price: number;
-    };
+    rooms: Room[];
     searchParams: SearchParams;
+    reservationCreated: () => void;
 }
 
 const ReservationModal: React.FC<ReservationModalProps> = ({
                                                                isOpen,
                                                                onClose,
-                                                               room,
+                                                               rooms,
                                                                searchParams,
+                                                               reservationCreated
                                                            }) => {
     const cancelRef = useRef<HTMLButtonElement>(null) as React.RefObject<HTMLElement>;
     const [formData, setFormData] = useState({
@@ -47,7 +44,6 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     const [countries, setCountries] = useState<Country[]>([]);
     const [loading, setLoading] = useState(true);
     const toast = useToast();
-    const navigate = useNavigate();
 
     useEffect(() => {
         const loadCountries = async () => {
@@ -75,7 +71,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         setFormData(prev => {
             if (name === "country") {
@@ -87,7 +83,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
                 };
             }
 
-            return { ...prev, [name]: value };
+            return {...prev, [name]: value};
         });
     };
 
@@ -102,11 +98,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
             parseInt(searchParams.adults) > 0 &&
             searchParams.children
         ) {
-            const entryDateObj = new Date(searchParams.entryDate);
-            const exitDateObj = new Date(searchParams.exitDate);
-            const timeDiff = exitDateObj.getTime() - entryDateObj.getTime();
-            const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            const totalPrice = room.price * nights;
+            const totalPrice = rooms.reduce((acc, room) => acc + room.price, 0);
 
             reservationData = {
                 entryDate: searchParams.entryDate,
@@ -116,7 +108,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
                 name: formData.name,
                 email: formData.email,
                 phone: fullPhone,
-                roomsIds: [room.id],
+                roomsIds: rooms.map(room => room.id),
                 price: totalPrice,
             };
         } else {
@@ -132,8 +124,8 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
                 duration: 5000,
                 isClosable: true,
             });
+            reservationCreated();
             onClose();
-            navigate("/");
         } catch (error) {
             toast({
                 title: "Reservation failed",
