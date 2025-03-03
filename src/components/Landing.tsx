@@ -50,7 +50,7 @@ export default function Landing() {
 
     const bgOverlay = useColorModeValue('rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.6)');
     const loremIpsum: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus quis eros quis nisi sodales lacinia nec vitae turpis. Suspendisse luctus commodo tellus id pulvinar. Cras gravida id tortor et tempus. Fusce suscipit enim non feugiat fermentum.";
-    const hotelId: string = "cm7agdu2t0006ne0w5rh1jc0s";
+    const hotelId: string = "cm7t3kif80002o301zqozycc0";
     const socialMediaIconSize = useBreakpointValue({base: 16, md: 22, lg: 36});
 
     useEffect(() => {
