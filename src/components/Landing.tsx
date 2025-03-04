@@ -148,6 +148,7 @@ export default function Landing() {
                 px={{base: 4, md: 8}}
                 maxWidth={"1200px"}
                 mx={"auto"}
+                id={"reservationForm"}
             >
                 <SearchForm sendSearchParams={handleSearchParamsFromForm} />
             </Box>
