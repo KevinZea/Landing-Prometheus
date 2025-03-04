@@ -14,9 +14,9 @@ export function Header() {
     });
 
     const logoHeight = useBreakpointValue({
-        base: '40px',
-        md: '60px',
-        lg: '80px'
+        base: '45px',
+        md: '75px',
+        lg: '100px'
     });
 
     return (
@@ -29,7 +29,7 @@ export function Header() {
                 align="center"
             >
                 <Link href="/">
-                    <Image h={logoHeight} src={hotelLogo} alt="Hotel Logo" />
+                    <Image borderRadius={'full'} objectFit={'cover'} h={logoHeight} aspectRatio={1} src={hotelLogo} alt="Hotel Logo" />
                 </Link>
 
                 <Stack
